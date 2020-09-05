@@ -1,5 +1,6 @@
-server:
-  port: 8080
+#端口在使用Nginx负载均衡时删掉
+#server:
+#  port: 8080
 spring:
   data:
     redis:

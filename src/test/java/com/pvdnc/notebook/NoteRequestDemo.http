@@ -1,0 +1,46 @@
+GET http://localhost:8080/login?name=demo1&password=123
+Accept: application/json
+
+### 登录
+
+POST http://localhost:8080/note/add
+Content-Type: application/json;charset=UTF-8
+
+{
+  "isPrivate": false,
+  "title": "demo-title2",
+  "content": "demo-content2"
+}
+
+### 添加一个note
+
+PUT http://localhost:8080/note/update
+Content-Type: application/json;charset=UTF-8
+
+{
+  "id": 3,
+  "isPrivate": false,
+  "title": "demo-title2-updated",
+  "content": "demo-content2-updated"
+}
+
+###更新note的标题和内容
+
+GET http://localhost:8080/note/self
+Accept: application/json
+
+###查询当前用户的所有note
+
+DELETE http://localhost:8080/note/delete
+Content-Type: application/json;charset=UTF-8
+
+{
+  "id": 2
+}
+
+###删除指定id的note
+
+GET http://localhost:8080/note/3
+Accept: application/json
+
+###查询指定id的note

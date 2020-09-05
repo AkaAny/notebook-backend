@@ -20,11 +20,13 @@ when the project has just been in the status that its first commit
 being put forward.
 (or only with specific international requirements advanced
 will I or other almost unexpectable contributors provide an version
-that proximately meet the requirements of cross-language or cultures progammers)
-Any inconvenience as consequence are regret
+that proximately meet the requirements of cross-language or culture programmers)
+Any inconveniences as consequence would be regret
 without requesting for excuses at least for present however. 
 
-嗯，高中英语作文既视感
+批语：嗯，用词不够High Level，水平偏低，高中英语作文既视感，下一位~
+
+下面说正事：
 
 #### 软件架构
 1.  SpringBoot+MyBatis+MySql，前后端分离

@@ -3,6 +3,12 @@ package com.pvdnc.notebook.utils;
 import javax.servlet.http.HttpSession;
 
 public class SessionWrapper {
+
+    public static HttpSession getFromAspectArgs(Object[] args){
+        int index=args.length-1;
+        return (HttpSession) args[index];
+    }
+
     private static final String KEY_NAME="name";
 
     public static String getName(HttpSession session){

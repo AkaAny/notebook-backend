@@ -7,6 +7,7 @@ import com.pvdnc.notebook.entity.request.DeleteNoteRequest;
 import com.pvdnc.notebook.entity.request.UpdateNoteRequest;
 import com.pvdnc.notebook.entity.rest.BaseResult;
 import com.pvdnc.notebook.entity.rest.NoteResult;
+import com.pvdnc.notebook.entity.rest.ResultFactory;
 import com.pvdnc.notebook.mapper.NoteMapper;
 import com.pvdnc.notebook.utils.SessionWrapper;
 import io.swagger.annotations.Api;
@@ -45,16 +46,11 @@ public class NoteController {
     }
 
     @ApiOperation(value ="[Login Required] Get all Notes added by current user in session",httpMethod = "GET")
-    @NeedLoginCheck(action = "get self notes")
+    @NeedLoginCheck(action = "get self notes",resultType = NoteResult.class)
     @GetMapping("/note/self")
     public NoteResult getNoteForSelf(HttpSession session){
         NoteResult result=new NoteResult();
         String name= SessionWrapper.getName(session);
-        if(name==null){//未登录
-            result.code=403;
-            result.msg="since did not logon,self notes are not available";
-            return result;
-        }
         result.code=200;
         result.msg="name:"+name+" -> session id:"+session.getId();
         result.mNoteList= mNoteMapper.getUserNote(name);
@@ -75,11 +71,7 @@ public class NoteController {
         }
         String name= SessionWrapper.getName(session);
         if(note.isPrivate) {//私有note只有创建的用户可以访问
-            try {
-                checkNoteOp(name, note);
-            }catch (UnsupportedOperationException ex) {
-                result.code = 403;
-                result.msg=ex.getMessage();
+            if(!checkNoteOp(name,id,note,result)){
                 return result;
             }
         }
@@ -96,11 +88,6 @@ public class NoteController {
     public BaseResult addNote(@RequestBody AddNoteRequest request,HttpSession session){
         BaseResult result=new BaseResult();
         String name= SessionWrapper.getName(session);
-        if(name==null){//未登录
-            result.code=403;
-            result.msg="since did not logon,add note are not available";
-            return result;
-        }
         Note note=new Note();
         note.fromUser=name;
         note.isPrivate=request.isPrivate;
@@ -119,37 +106,32 @@ public class NoteController {
     public BaseResult deleteNote(@RequestBody DeleteNoteRequest request,HttpSession session){
         BaseResult result=new BaseResult();
         String name= SessionWrapper.getName(session);
-        if(name==null){//未登录
-            result.code=403;
-            result.msg="since did not logon,delete note are not available";
+        Long noteId=request.id;
+        Note noteToDelete=mNoteMapper.getNoteById(noteId);
+        if(!checkNoteOp(name,noteId,noteToDelete,result)){
             return result;
         }
-        Long id=request.id;
-        Note noteToDelete=mNoteMapper.getNoteById(id);
-
-        try{
-            checkNoteOp(name,noteToDelete);
-        }catch (NullPointerException e){
-            result.code=404;
-            result.msg="note id:"+id+" does not exist";
-            return result;
-        }catch (UnsupportedOperationException e){
-            result.code=403;
-            result.msg=e.getMessage();
-        }
-        mNoteMapper.deleteNote(id);
+        mNoteMapper.deleteNote(noteId);
         result.code=200;
-        result.msg="note:"+id+" deleted";
+        result.msg="note:"+noteId+" deleted";
         return result;
     }
 
-    private void checkNoteOp(String name, Note note)
+    private <T extends BaseResult> boolean checkNoteOp(String name,Long noteId, Note note,
+                                T result)
             throws NullPointerException,UnsupportedOperationException {
-        Objects.requireNonNull(note);
-        if(!note.fromUser.equals(name)){
-            throw new UnsupportedOperationException("note id:"+note.id
-                    +" does not belong to user:"+name);
+        if(note==null){
+            result.code=404;
+            result.msg="note id:"+noteId+" does not exist";
+            return false;
         }
+        if(!note.fromUser.equals(name)){
+            result.code=403;
+           result.msg= "note id:"+note.id
+                    +" does not belong to user:"+name;
+           return false;
+        }
+        return true;
     }
 
     @ApiOperation(value ="[Login Required] Update a Note",httpMethod = "PUT",produces = "application/json;charset=UTF-8")
@@ -159,23 +141,12 @@ public class NoteController {
     public BaseResult updateNote(@RequestBody UpdateNoteRequest request,HttpSession session){
         BaseResult result=new BaseResult();
         String name= SessionWrapper.getName(session);
-        if(name==null){//未登录
-            result.code=403;
-            result.msg="since did not logon,update note are not available";
-            return result;
-        }
         Long noteId=request.id;
         Note noteToUpdate=mNoteMapper.getNoteById(noteId);
-        try{
-            checkNoteOp(name,noteToUpdate);
-        }catch (NullPointerException e){
-            result.code=404;
-            result.msg="note id:"+noteId+" does not exist";
-            return result;
-        }catch (UnsupportedOperationException e){
-            result.code=403;
-            result.msg=e.getMessage();
-        }
+
+            if(!checkNoteOp(name,noteId,noteToUpdate,result)){
+                return result;
+            }
         StringBuilder resultMsgBuilder=new StringBuilder("note:"+noteId+" update ops:");
         noteToUpdate.isPrivate=request.isPrivate;
         if(request.title!=null){

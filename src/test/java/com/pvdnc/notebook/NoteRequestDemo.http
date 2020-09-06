@@ -3,6 +3,11 @@ Accept: application/json
 
 ### 登录
 
+GET http://localhost:8080/hello
+Accept: application/json
+
+### Hello
+
 POST http://localhost:8080/note/add
 Content-Type: application/json;charset=UTF-8
 
@@ -20,8 +25,8 @@ Content-Type: application/json;charset=UTF-8
 {
   "id": 3,
   "isPrivate": false,
-  "title": "demo-title2-updated",
-  "content": "demo-content2-updated"
+  "title": "demo-title2-updated2",
+  "content": "demo-content2-updated2"
 }
 
 ###更新note的标题和内容

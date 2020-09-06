@@ -3,6 +3,7 @@ package com.pvdnc.notebook.entity.rest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.pvdnc.notebook.entity.Note;
+import org.springframework.context.annotation.Bean;
 
 import java.util.List;
 

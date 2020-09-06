@@ -5,6 +5,7 @@ import com.pvdnc.notebook.aop.NeedLoginCheck;
 import com.pvdnc.notebook.entity.User;
 import com.pvdnc.notebook.entity.request.RegisterRequest;
 import com.pvdnc.notebook.entity.rest.BaseResult;
+import com.pvdnc.notebook.entity.rest.ResultFactory;
 import com.pvdnc.notebook.mapper.UserMapper;
 import com.pvdnc.notebook.utils.SessionWrapper;
 import io.swagger.annotations.Api;
@@ -77,18 +78,24 @@ public class HelloController {
     @ApiOperation(value = "[Login Required] Logout current user in session",httpMethod = "GET")
     @NeedLoginCheck(action = "logout")
     @GetMapping("/logout")
-    public String logout(HttpSession session){
+    public BaseResult logout(HttpSession session){
+        BaseResult result=new BaseResult();
         String sessionId=session.getId();
         session.invalidate();
-        return "session:"+sessionId+" logout";
+        result.code=200;
+        result.msg= "session:"+sessionId+" logout";
+        return result;
     }
 
     @NeedLoginCheck(action = "hello")
     @GetMapping("/hello")
     @ResponseBody
-    public String hello(HttpSession session){
+    public BaseResult hello(HttpSession session){
+        BaseResult result=new BaseResult();
         LOG.debug("session:"+session);
         String name= SessionWrapper.getName(session);
-        return "hello "+name;
+        result.code=200;
+        result.msg= "hello "+name;
+        return result;
     }
 }
